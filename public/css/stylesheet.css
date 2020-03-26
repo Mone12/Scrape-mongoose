@@ -1,0 +1,17 @@
+/* Jumbotron */
+
+.intro-jmbo {
+    height: 450px;
+}
+
+h1 {
+    margin-top: 70px;
+}
+
+/* Scraped Articles/Card */
+
+.empty-text {
+
+    font-weight: bold;
+    color: white;
+}
