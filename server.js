@@ -2,14 +2,16 @@ var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 
-// Our scraping tools
-// Axios is a promised-based http library, similar to jQuery's Ajax method
+
 // It works on the client and on the server
 var axios = require("axios");
 var cheerio = require("cheerio");
 
 // Initialize Express
 var app = express();
+
+// Require models
+var db = require("./models");
 
 // // Require all models
 // var db = require("..Scrape-mongoose/models");
@@ -20,7 +22,7 @@ var PORT = process.env.PORT || 3000;
 app.use(express.static("public"));
 
 //  Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/scraper", { useNewUrlParser:true, useUnifiedTopology:true });
+mongoose.connect("mongodb://localhost/articledb", { useNewUrlParser:true, useUnifiedTopology:true });
 
 // require handlebars
   var exphbs = require("express-handlebars");
@@ -52,7 +54,7 @@ app.get("/scrape", function(req, res) {
     $(".sorted-article").each(function(i, element) {
       
       // Save an empty result object
-      var result = [];
+      var result = {};
      
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
@@ -63,9 +65,10 @@ app.get("/scrape", function(req, res) {
         .children("a")
         .attr("href");
 
-        result.description = $(this)
+        result.note = $(this)
         .children("p")
         .text();
+        console.log(result);
       
     // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
@@ -82,7 +85,19 @@ app.get("/scrape", function(req, res) {
   });
 });
 
-
+// Route for getting all Articles from the db
+app.get("/articles", function(req, res) {
+  // Grab every document in the Articles collection
+  db.Article.find({})
+    .then(function(dbArticle) {
+      // If we were able to successfully find Articles, send them back to the client
+      res.json(dbArticle);
+    })
+    .catch(function(err) {
+      // If an error occurred, send it to the client
+      res.json(err);
+    });
+});
 
 // Route for grabbing a specific Article by id, populate it with it's note
   app.get("/articles/:id", function(req, res) {
