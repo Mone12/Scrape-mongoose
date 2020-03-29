@@ -1,0 +1,37 @@
+<!-- Intro/Jumbotron -->
+          <div class="jumbotron jumbotron-fluid text-center intro-jmbo">
+            <div class="container">
+              <h1 class="display-4">Mongo Scraper</h1>
+              <h3 class="space-title">Space News Edition</h3>
+                    <p>Bought to you by Phys</p>
+            </div>
+          </div>
+
+        <!-- Scraped Articles/Cards -->
+        <div id= "scraped-cards" class="container scraped">
+
+
+                <div id="no-articles" class="card empty-card bg-warning text-center">
+                        <div class="card-header empty-text">
+                         Uh Oh. Looks like we don't have any new articles.
+                        </div>
+                      
+                      
+                      {{#each article}}
+                        <div id="scraped-articles">
+
+                          <div class="card-header">
+                              <h4>{{this.title}}</h4>
+                              <a href="/readArticle/{{this._id}}"></a>
+
+                          </div>
+
+                         
+                        </div>
+                         {{/each}}
+                        
+                        </div>
+                      </div>
+
+
+        </div>

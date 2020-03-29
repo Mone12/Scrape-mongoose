@@ -1,4 +1,16 @@
+/* general */
+
+body {
+    background-color:#343a40;
+}
+
+
 /* Jumbotron */
+
+.jumbotron {
+    background: url("../images/galaxy.jpg");
+    color: white;
+}
 
 .intro-jmbo {
     height: 450px;
@@ -8,7 +20,13 @@ h1 {
     margin-top: 70px;
 }
 
-/* Scraped Articles/Card */
+.space-title {
+    margin-top: 20px;
+}
+
+/* Scraped Articles/Container */
+
+
 
 .empty-text {
 
