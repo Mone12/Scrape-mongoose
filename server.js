@@ -70,21 +70,21 @@ app.get("/scrape", function(req, res) {
       var result = {};
      
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this)
-      .children("d-flex")
+      result.title = $(element)
+      .find("d-flex")
       .children("sorted-article-content")
       .children("h3")
       .text();
         
-      result.link = $(this)
-      .children("d-flex")
+      result.link = $(element)
+      .find("d-flex")
       .children("sorted-article-content")
       .children("h3")
       .children("a")
       .attr("href");
 
-        result.note = $(this)
-        .children("d-flex")
+        result.note = $(element)
+        .find("d-flex")
         .children("sorted-article-content")
         .children("p")
         .text();
