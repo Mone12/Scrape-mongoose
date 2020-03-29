@@ -1,6 +1,7 @@
 var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
+var path = require("path");
 
 
 // It works on the client and on the server
@@ -20,21 +21,23 @@ var PORT = process.env.PORT || 3000;
 
 // Make public a static folder
 app.use(express.static("public"));
+// Use morgan logger for logging requests
+// app.use(logger("dev"));
+// Parse request body as JSON
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json());
 
 //  Connect to the Mongo DB
 mongoose.connect("mongodb://localhost/articledb", { useNewUrlParser:true, useUnifiedTopology:true });
 
+
 // require handlebars
   var exphbs = require("express-handlebars");
-  app.engine("handlebars",exphbs({defaultLayout: "main"}));
-  app.set("view engine", "handlebars");
+  // app.engine("handlebars",exphbs({defaultLayout: "main"}));
+  // app.set("view engine", "handlebars");
 
 
-  // Use morgan logger for logging requests
-      app.use(logger("dev"));
-  // Parse request body as JSON
-      app.use(express.urlencoded({ extended: true }));
-      app.use(express.json());
+  
 
 
 
@@ -42,8 +45,17 @@ mongoose.connect("mongodb://localhost/articledb", { useNewUrlParser:true, useUni
 //  Routes
 
 // A GET route for scraping the echoJS website
+
+app.get("/", function(req, res) {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
 app.get("/scrape", function(req, res) {
-  
+  db.articledb.find({
+    saved:false
+
+  }) .remove()
+
   // First, we grab the body of the html with axios
   axios.get("https://phys.org/space-news/").then(function(response) {
     
@@ -51,52 +63,58 @@ app.get("/scrape", function(req, res) {
     var $ = cheerio.load(response.data);
     
       // scrape articles
-    $(".sorted-article").each(function(i, element) {
+     $(".sorted-article").each(function(i, element) {
       
+      console.log("element", element);
       // Save an empty result object
       var result = {};
      
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
+      .children("d-flex")
+      .children("sorted-article-content")
       .children("h3")
       .text();
         
       result.link = $(this)
-        .children("a")
-        .attr("href");
+      .children("d-flex")
+      .children("sorted-article-content")
+      .children("h3")
+      .children("a")
+      .attr("href");
 
         result.note = $(this)
+        .children("d-flex")
+        .children("sorted-article-content")
         .children("p")
         .text();
+       
         console.log(result);
       
-    // Create a new Article using the `result` object built from scraping
-      db.Article.create(result)
-        .then(function(dbArticle) {
-          // View the added result in the console
-          console.log(dbArticle);
+ // Create a new Article using the `result` object built from scraping
+  db.Article.create(result)
+         .then(function(dbArticle) {
+        // View the added result in the console
+     console.log(dbArticle);
         })
-        .catch(function(err) {
-          // If an error occurred, log it
-          console.log(err);
-        });
-    })
+      .catch(function(err) {
+      // If an error occurred, log it
+           console.log(err);
+         });
+     })
     res.send("Scrape Complete");
   });
 });
 
 // Route for getting all Articles from the db
 app.get("/articles", function(req, res) {
-  // Grab every document in the Articles collection
-  db.Article.find({})
-    .then(function(dbArticle) {
-      // If we were able to successfully find Articles, send them back to the client
-      res.json(dbArticle);
-    })
-    .catch(function(err) {
-      // If an error occurred, send it to the client
-      res.json(err);
-    });
+  db.Article.find({}).exec(function(err, found) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.json(found);
+    }
+  });
 });
 
 // Route for grabbing a specific Article by id, populate it with it's note
@@ -134,8 +152,9 @@ app.post("/articles/:id", function(req, res) {
       res.json(err);
     });
 });
-
+     
 // Start the server
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");
-});
+
+  })
