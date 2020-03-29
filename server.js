@@ -52,21 +52,21 @@ app.get("/scrape", function(req, res) {
     
       // scrape articles
     $(".sorted-article").each(function(i, element) {
-      
+      console.log('element', element);
       // Save an empty result object
       var result = {};
      
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this)
-      .children("h3")
+      result.title = $(element)
+      .find("h3")
       .text();
         
-      result.link = $(this)
-        .children("a")
+      result.link = $(element)
+        .find("a")
         .attr("href");
 
-        result.note = $(this)
-        .children("p")
+        result.note = $(element)
+        .find("p")
         .text();
         console.log(result);
       
