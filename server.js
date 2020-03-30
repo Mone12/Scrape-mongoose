@@ -51,60 +51,58 @@ app.get("/", function(req, res) {
 });
 
 app.get("/scrape", function(req, res) {
-  db.articledb.find({
+  db.Article.find({
     saved:false
 
   }) .remove()
 
   // First, we grab the body of the html with axios
-  axios.get("https://phys.org/space-news/").then(function(response) {
+  axios.get("https://phys.org/space-news/").then(async function(response) {
     
   // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(response.data);
     
       // scrape articles
-     $(".sorted-article").each(function(i, element) {
+     await $(".sorted-article-content").each(function(i, element) {
       
-      console.log("element", element);
+      // console.log("element", element);
       // Save an empty result object
       var result = {};
      
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(element)
-      .find("d-flex")
-      .children("sorted-article-content")
-      .children("h3")
+      result.title = $(this)
+     .children("h3")
+     .children("a")
       .text();
         
-      result.link = $(element)
-      .find("d-flex")
-      .children("sorted-article-content")
+      result.link = $(this)
       .children("h3")
       .children("a")
       .attr("href");
 
-        result.note = $(element)
-        .find("d-flex")
-        .children("sorted-article-content")
+        result.note = $(this)
         .children("p")
         .text();
        
-        console.log(result);
-      
- // Create a new Article using the `result` object built from scraping
-  db.Article.create(result)
-         .then(function(dbArticle) {
-        // View the added result in the console
-     console.log(dbArticle);
-        })
-      .catch(function(err) {
-      // If an error occurred, log it
-           console.log(err);
-         });
-     })
-    res.send("Scrape Complete");
+        // console.log(result);
+ 
+        // Create a new Article using the `result` object built from scraping
+        if (result.title && result.link && result.note) {
+          db.Article.create(result)
+          .then(function(dbArticle) {})
+          .catch(function(err) {
+            // If an error occurred, log it
+                 console.log(err);
+               });
+        }
+      })
+    })
   });
-});
+      
+
+  
+         
+       
 
 // Route for getting all Articles from the db
 app.get("/articles", function(req, res) {

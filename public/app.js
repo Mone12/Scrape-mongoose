@@ -22,26 +22,32 @@ space.forEach(function (tip) {
 });
 }
 
-$.ajax(
-{
-  url: '/articles',
-  method: 'get'
-}
-).then(result => {
-if (result.length > 0) {
-  $(".empty-text").html("");
-}
-displayResults(result);
-})
-
-});
-
 
 $("#space-artic").on("click", function(){
   console.log("scraping articles");
 
   $.get("/scrape").then($.getJSON("/articles",function(data){
-    console.log(data);
+    console.log("data", data);
+
+    $.ajax(
+      {
+        url: '/articles',
+        method: 'get'
+      }
+      ).then(result => {
+      if (result.length > 0) {
+        $(".empty-text").html("");
+      }
+      displayResults(result);
+      $("#no-articles").hide();
+      })
+
+    
+   
   }))
+  });
 });
+
+
+
 
